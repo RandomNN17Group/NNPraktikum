@@ -7,6 +7,8 @@ import numpy as np
 
 from util.activation_functions import Activation
 from model.classifier import Classifier
+from util.loss_functions import DifferentError
+from report.evaluator import Evaluator
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.DEBUG,
@@ -58,7 +60,20 @@ class Perceptron(Classifier):
         """
         
         # Write your code to train the perceptron here
-        pass
+        for epoch in range(self.epochs):
+            sum_of_errors = 0
+            for (input, label) in zip(self.trainingSet.input, self.trainingSet.label):
+                prediction = self.classify(input)
+                error = DifferentError().calculateError(label, prediction)
+                sum_of_errors += error
+                self.updateWeights(input, error)
+            if verbose:
+                evaluator = Evaluator()
+                validation = self.validationSet
+                results = self.evaluate(validation)
+                print("Epoch %d: Sum of errors = %d" % (epoch+1, sum_of_errors))
+                evaluator.printAccuracy(validation, results)
+
 
     def classify(self, testInstance):
         """Classify a single instance.
@@ -73,7 +88,7 @@ class Perceptron(Classifier):
             True if the testInstance is recognized as a 7, False otherwise.
         """
         # Write your code to do the classification on an input image
-        pass
+        return self.fire(testInstance)
 
     def evaluate(self, test=None):
         """Evaluate a whole dataset.
@@ -96,7 +111,7 @@ class Perceptron(Classifier):
 
     def updateWeights(self, input, error):
         # Write your code to update the weights of the perceptron here
-        pass
+        self.weight += self.learningRate * error * np.array(input)
          
     def fire(self, input):
         """Fire the output of the perceptron corresponding to the input """

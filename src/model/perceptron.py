@@ -35,7 +35,7 @@ class Perceptron(Classifier):
 	weight : list
 	"""
 	def __init__(self, train, valid, test,
-									learningRate=0.01, epochs=100):
+									learningRate=0.01, epochs=50):
 
 		self.learningRate = learningRate
 		self.epochs = epochs
@@ -71,12 +71,18 @@ class Perceptron(Classifier):
 		"""
 
 		# Write your code to train the perceptron here
+
 		for epoch in range(0, self.epochs):
+			falseClassifications = 0.0
 			for (trainingImage, label) in zip(self.trainingSet.input, self.trainingSet.label):
 				classification = self.classify(trainingImage) #1/true if classified as 7, 0/false otherwise
 				error = (label - classification) #target output/label and perceptron output/classification
+				if(verbose & error != 0):
+					falseClassifications += 1.0
 				self.updateWeights(trainingImage, error)
-
+			if verbose:
+				accuracy = (1.0 - falseClassifications/float(len(self.trainingSet.input)))
+				print("Epoch %d had accuracy of %f with %d false classifications" % (epoch, accuracy, falseClassifications))
 		pass
 
 	def classify(self, testInstance):

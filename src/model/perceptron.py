@@ -56,18 +56,15 @@ class Perceptron(Classifier):
 		verbose : boolean
 			Print logging messages with validation accuracy if verbose is True.
 			
-	
-	for each epoch one must train the perceptron
-	training equals classifying each element of the training set i.e. each input as one image/number#
-	trainingSet contains an amount of training images=input and labels for each input
-	training images contain an amount of pixels
-	a pixel is a single input to the perceptron
-	
-	
-	for correctly recognized 7, do nothing
-	for incorrectly recognizing a number as 7, decrease weights
-	for incorrectly not recognizing a number as 7, increase weights
-
+        for each epoch one must train the perceptron
+        training equals classifying each element of the training set i.e. each input as one image/number#
+        trainingSet contains an amount of training images=input and labels for each input
+        training images contain an amount of pixels
+        a pixel is a single input to the perceptron
+        
+        for correctly recognized 7, do nothing
+        for incorrectly recognizing a number as 7, decrease weights
+        for incorrectly not recognizing a number as 7, increase weights
 		"""
 
 		# Write your code to train the perceptron here

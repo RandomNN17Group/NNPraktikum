@@ -56,7 +56,47 @@ class LogisticRegression(Classifier):
             Print logging messages with validation accuracy if verbose is True.
         """
 
-        pass
+        # Try to use the abstract way of the framework
+        # from util.loss_functions import MeanSquaredError
+        from util.loss_functions import DifferentError
+        diff = DifferentError()
+        # mean = MeanSquaredError()
+
+        learned = False
+        iteration = 0
+
+        # Train for some epochs if the error is not 0
+        while not learned:
+            totalErrors = 0
+            grad = np.zeros(self.weight.size)
+            trainingOutput = list(map(self.fire, self.trainingSet.input))
+            trainingClassified = self.classify(self.trainingSet.input)
+            for input, label, output, classified in zip(self.trainingSet.input,
+                                    self.trainingSet.label, trainingOutput, trainingClassified):
+                error = (label - output) * Activation.sigmoidPrime(output)
+                grad -= error * input
+                totalErrors += np.abs(diff.calculateError(label, classified))
+
+            self.updateWeights(grad)
+
+            iteration += 1
+
+            gradAbs = np.sum(np.abs(grad))
+
+            if verbose:
+                from report.evaluator import Evaluator
+                # meanErrorOld = mean.calculateError(self.trainingSet.label, trainingClassified)
+                # meanErrorNew = mean.calculateError(self.trainingSet.label, self.classify(self.trainingSet.input))
+                # meanDifference = meanErrorOld - meanErrorNew
+                # logging.info("Epoch: %i; False training classifications: %i; Abs of Gradient: %.20f; Mean Squared Error: %.50f%%", iteration, totalErrors, gradAbs, meanDifference)
+                logging.info("Epoch: %i; False training classifications: %i; Abs of Gradient: %.20f", iteration, totalErrors, gradAbs)
+                print "Validation",
+                Evaluator().printAccuracy(self.validationSet, self.evaluate(self.validationSet))
+
+            #Add "or gradAbs < epsilon" with a suited epsilon as aditional stop criteria
+            if totalErrors == 0 or iteration >= self.epochs:
+                # stop criteria is reached
+                learned = True
         
     def classify(self, testInstance):
         """Classify a single instance.
@@ -70,7 +110,7 @@ class LogisticRegression(Classifier):
         bool :
             True if the testInstance is recognized as a 7, False otherwise.
         """
-        pass
+        return Activation.sign(self.fire(testInstance), 0.5)
 
     def evaluate(self, test=None):
         """Evaluate a whole dataset.
@@ -92,7 +132,7 @@ class LogisticRegression(Classifier):
         return list(map(self.classify, test))
 
     def updateWeights(self, grad):
-        pass
+        self.weight -= self.learningRate * grad
 
     def fire(self, input):
         # Look at how we change the activation function here!!!!

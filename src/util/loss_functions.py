@@ -61,6 +61,8 @@ class MeanSquaredError(Error):
     def calculateError(self, target, output):
         # MSE = 1/n*sum (i=1 to n) of (target_i - output_i)^2)
         return 1.0 / len(target) * np.sum(np.square(np.subtract(target, output)))
+        # from sklearn.metrics import mean_squared_error
+        # return mean_squared_error(target, output)
 
 
 class SumSquaredError(Error):

@@ -57,20 +57,24 @@ class LogisticRegression(Classifier):
         """
 
         # Try to use the abstract way of the framework
-        # from util.loss_functions import MeanSquaredError
+        from util.loss_functions import MeanSquaredError
         from util.loss_functions import DifferentError
         diff = DifferentError()
-        # mean = MeanSquaredError()
+        mean = MeanSquaredError()
 
         learned = False
         iteration = 0
+
+        if verbose:
+            meanError = mean.calculateError(self.trainingSet.label, self.evaluate(self.trainingSet.input))
+            logging.info("Start of training; Mean Squared Error of training set: %.5f", meanError)
 
         # Train for some epochs if the error is not 0
         while not learned:
             totalErrors = 0
             grad = np.zeros(self.weight.size)
             trainingOutput = list(map(self.fire, self.trainingSet.input))
-            trainingClassified = self.classify(self.trainingSet.input)
+            trainingClassified = self.evaluate(self.trainingSet.input)
             for input, label, output, classified in zip(self.trainingSet.input,
                                     self.trainingSet.label, trainingOutput, trainingClassified):
                 error = (label - output) * Activation.sigmoidPrime(output)
@@ -81,19 +85,17 @@ class LogisticRegression(Classifier):
 
             iteration += 1
 
-            gradAbs = np.sum(np.abs(grad))
+            gradLen = np.sqrt(np.sum(np.square(grad)))
+
+            meanError = mean.calculateError(self.trainingSet.label, self.evaluate(self.trainingSet.input))
 
             if verbose:
                 from report.evaluator import Evaluator
-                # meanErrorOld = mean.calculateError(self.trainingSet.label, trainingClassified)
-                # meanErrorNew = mean.calculateError(self.trainingSet.label, self.classify(self.trainingSet.input))
-                # meanDifference = meanErrorOld - meanErrorNew
-                # logging.info("Epoch: %i; False training classifications: %i; Abs of Gradient: %.20f; Mean Squared Error: %.50f%%", iteration, totalErrors, gradAbs, meanDifference)
-                logging.info("Epoch: %i; False training classifications: %i; Abs of Gradient: %.20f", iteration, totalErrors, gradAbs)
+                logging.info("Epoch: %i; False training classifications: %i; Length of Gradient: %.5f; Mean Squared Error of training set: %.5f", iteration, totalErrors, gradLen, meanError)
                 print "Validation",
                 Evaluator().printAccuracy(self.validationSet, self.evaluate(self.validationSet))
 
-            #Add "or gradAbs < epsilon" with a suited epsilon as aditional stop criteria
+            #Add "or gradLen < epsilon"  or "or meanError < epsilon" with a suited epsilon as aditional stop criteria
             if totalErrors == 0 or iteration >= self.epochs:
                 # stop criteria is reached
                 learned = True

@@ -15,7 +15,6 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
 
 
 class Perceptron(Classifier):
-<<<<<<< HEAD
     """
     A digit-7 recognizer based on perceptron algorithm
 

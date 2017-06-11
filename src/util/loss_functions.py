@@ -24,8 +24,6 @@ class Error:
     def calculateError(self, target, output):
         # calculate the error between target and output
         pass
-
-
 class AbsoluteError(Error):
     """
     The Loss calculated by the number of differences between target and output
@@ -60,7 +58,8 @@ class MeanSquaredError(Error):
 
     def calculateError(self, target, output):
         # MSE = 1/n*sum (i=1 to n) of (target_i - output_i)^2)
-        pass
+        sum = np.sum(np.square(np.subtract(target-output)))
+        return (1.0/len(target))*sum
 
 
 class SumSquaredError(Error):
@@ -73,6 +72,8 @@ class SumSquaredError(Error):
 
     def calculateError(self, target, output):
         # SSE = 1/2*sum (i=1 to n) of (target_i - output_i)^2)
+        sum = np.sum(np.square(np.subtract(target-output)))
+        return 0.5*sum
         pass
 
 

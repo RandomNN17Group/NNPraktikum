@@ -7,11 +7,10 @@ import numpy as np
 
 from util.activation_functions import Activation
 from model.classifier import Classifier
-from report.evaluator import Evaluator
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-					level=logging.DEBUG,
-					stream=sys.stdout)
+                    level=logging.DEBUG,
+                    stream=sys.stdout)
 
 
 class Perceptron(Classifier):
@@ -76,10 +75,10 @@ class Perceptron(Classifier):
                     totalError += error
 
             iteration += 1
-
+            
             if verbose:
                 logging.info("Epoch: %i; Error: %i", iteration, -totalError)
-
+            
             if totalError == 0 or iteration >= self.epochs:
                 # stop criteria is reached
                 learned = True

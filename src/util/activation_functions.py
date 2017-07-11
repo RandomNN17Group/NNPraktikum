@@ -6,7 +6,7 @@ Activation functions which can be used within neurons.
 
 from numpy import exp
 from numpy import divide
-import numpy as np
+
 
 class Activation:
     """
@@ -19,22 +19,26 @@ class Activation:
 
     @staticmethod
     def sigmoid(netOutput):
-        return 1.0/(1.0+exp(-netOutput))
+        # use e^x from numpy to avoid overflow
+        return 1/(1+exp(-1.0*netOutput))
+
     @staticmethod
     def sigmoidPrime(netOutput):
         # Here you have to code the derivative of sigmoid function
         # netOutput.*(1-netOutput)
-        return netOutput*(1-netOutput)
+        pass
 
     @staticmethod
     def tanh(netOutput):
-        return (exp(netOutput) - exp(-netOutput))/(exp(netOutput) + exp(-netOutput))
+        # return 2*Activation.sigmoid(2*netOutput)-1
+        ex = exp(1.0*netOutput)
+        exn = exp(-1.0*netOutput)
+        return divide(ex-exn, ex+exn)  # element-wise division
+
     @staticmethod
     def tanhPrime(netOutput):
         # Here you have to code the derivative of tanh function
-        cosh = (1 + exp(-2.0*netOutput))/(2.0 * exp(-netOutput))
-        sech = 1.0/cosh
-        return sech*sech
+        pass
 
     @staticmethod
     def rectified(netOutput):
@@ -43,7 +47,7 @@ class Activation:
     @staticmethod
     def rectifiedPrime(netOutput):
         # Here you have to code the derivative of rectified linear function
-        return 1.0 if netOutput > 0 else 0.0
+        pass
 
     @staticmethod
     def identity(netOutput):
@@ -52,13 +56,12 @@ class Activation:
     @staticmethod
     def identityPrime(netOutput):
         # Here you have to code the derivative of identity function
-        return 1.0
+        pass
 
     @staticmethod
     def softmax(netOutput):
         # Here you have to code the softmax function
-        e = exp(np.array(netOutput))
-        return e/np.sum(e)
+        pass
 
     @staticmethod
     def getActivation(str):

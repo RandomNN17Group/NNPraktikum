@@ -107,10 +107,12 @@ class LogisticLayer():
         if self.isClassifierLayer:
             self.delta = self.activationDerivative(self.output) * nextDerivatives
         else:
-            # Not implemented yet because not needed yet for one-layer classifier
-            pass
+            self.delta = self.activationDerivative(self.output) * np.sum(nextDerivatives * nextWeights)
 
         return self.delta
+
+    def getWeights(self):
+        return np.copy(self.weights)
 
     def updateWeights(self, learningRate):
         """

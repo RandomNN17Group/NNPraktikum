@@ -64,6 +64,7 @@ def main():
     print("\nResult of the Logistic Regression recognizer:")
     # evaluator.printComparison(data.testSet, perceptronPred)    
     evaluator.printAccuracy(data.testSet, lrPred)
+    # Highest result s far: 98.3%
     
     
 if __name__ == '__main__':

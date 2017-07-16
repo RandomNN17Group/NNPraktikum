@@ -7,6 +7,7 @@ import numpy as np
 
 from util.activation_functions import Activation
 from model.classifier import Classifier
+from model.logistic_layer import LogisticLayer
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.DEBUG,
@@ -33,6 +34,7 @@ class LogisticRegression(Classifier):
     weight : list
     learningRate : float
     epochs : positive int
+    layer : LogisticLayer
     """
 
     def __init__(self, train, valid, test, learningRate=0.01, epochs=50):
@@ -46,6 +48,9 @@ class LogisticRegression(Classifier):
 
         # Initialize the weight vector with small values
         self.weight = 0.01*np.random.randn(self.trainingSet.input.shape[1])
+
+        # Initialize layer
+        self.layer = LogisticLayer(self.trainingSet.input.shape[1], 1, None,'sigmoid', True)
 
     def train(self, verbose=True):
         """Train the Logistic Regression.
@@ -63,20 +68,20 @@ class LogisticRegression(Classifier):
         iteration = 0
 
         while not learned:
-            grad = 0
             totalError = 0
             for input, label in zip(self.trainingSet.input,
                                     self.trainingSet.label):
                 output = self.fire(input)
                 # compute gradient
-                grad += -(label - output)*input
+                grad = label - output
 
                 # compute recognizing error, not BCE
                 predictedLabel = self.classify(input)
                 error = loss.calculateError(label, predictedLabel)
                 totalError += error
 
-            self.updateWeights(grad)
+                self.updateWeights(grad)
+
             totalError = abs(totalError)
             
             iteration += 1
@@ -123,7 +128,8 @@ class LogisticRegression(Classifier):
         return list(map(self.classify, test))
 
     def updateWeights(self, grad):
-        self.weight -= self.learningRate*grad
+        self.layer.computeDerivative(grad, None)
+        self.layer.updateWeights(self.learningRate)
 
     def fire(self, input):
-        return Activation.sigmoid(np.dot(np.array(input), self.weight))
+        return self.layer.forward(np.insert(input, 0, 1))

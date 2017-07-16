@@ -73,7 +73,7 @@ class LogisticRegression(Classifier):
                                     self.trainingSet.label):
                 output = self.fire(input)
                 # compute gradient
-                grad = label - output
+                grad = label/output - (1.0-label)/(1.0 - output)
 
                 # compute recognizing error, not BCE
                 predictedLabel = self.classify(input)

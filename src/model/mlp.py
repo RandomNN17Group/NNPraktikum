@@ -1,7 +1,7 @@
 
 import numpy as np
 
-from util.loss_functions import CrossEntropyError
+from util.loss_functions import *
 from model.logistic_layer import LogisticLayer
 from model.classifier import Classifier
 
@@ -43,7 +43,7 @@ class MultilayerPerceptron(Classifier):
         self.epochs = epochs
         self.outputTask = outputTask  # Either classification or regression
         self.outputActivation = outputActivation
-        self.cost = cost
+        # self.cost = cost
 
         self.trainingSet = train
         self.validationSet = valid
@@ -113,8 +113,14 @@ class MultilayerPerceptron(Classifier):
         # Here you have to propagate forward through the layers
         # And remember the activation values of each layer
         """
+        input = inp
+        for layer in self.layers:
+            input = layer.forward(input)
+            input = np.insert(input, 0, 1, axis=0)
+        input = np.delete(input, 0, axis=0)
+        return input
         
-    def _compute_error(self, target):
+    def _compute_error(self, input, target):
         """
         Compute the total error of the network (error terms from the output layer)
 
@@ -123,13 +129,19 @@ class MultilayerPerceptron(Classifier):
         ndarray :
             a numpy array (1,nOut) containing the output of the layer
         """
-        pass
-    
-    def _update_weights(self, learningRate):
+        return self.loss.calculateError(target, self._feed_forward(input))
+
+    def _update_weights(self, learningRate, derivatives):
         """
         Update the weights of the layers by propagating back the error
         """
-        pass
+        nextDeltas = derivatives
+        nextWeights = 1.0
+        for layer in reversed(self.layers):
+            nextDeltas = layer.computeDerivative(nextDeltas, nextWeights)
+            nextWeights = layer.weights[1:]
+        for layer in self.layers:
+            layer.updateWeights(learningRate)
         
     def train(self, verbose=True):
         """Train the Multi-layer Perceptrons
@@ -139,14 +151,52 @@ class MultilayerPerceptron(Classifier):
         verbose : boolean
             Print logging messages with validation accuracy if verbose is True.
         """
-        pass
+        for epoch in range(self.epochs):
+            if verbose:
+                print("Training epoch {0}/{1}.."
+                      .format(epoch + 1, self.epochs))
 
+            self._train_one_epoch()
 
+            if verbose:
+                accuracy = accuracy_score(self.validationSet.label,
+                                          self.evaluate(self.validationSet))
+                # Record the performance of each epoch for later usages
+                # e.g. plotting, reporting..
+                self.performances.append(accuracy)
+                print("Accuracy on validation: {0:.2f}%"
+                      .format(accuracy * 100))
+                print("-----------------------------")
+
+    def _train_one_epoch(self):
+        """
+        Train one epoch, seeing all input instances
+        """
+
+        for img, label in zip(self.trainingSet.input,
+                              self.trainingSet.label):
+
+            # Use LogisticLayer to do the job
+            # Feed it with inputs
+
+            # Do a forward pass to calculate the output and the error
+            output = self._feed_forward(img)
+
+            # Compute the derivatives w.r.t to the error
+            # Please note the treatment of nextDerivatives and nextWeights
+            # in case of an output layer
+            target = np.zeros(10)
+            target[label] = 1.0
+            derivatives = self.loss.calculateDerivative(target, output)
+
+            # Update weights in the online learning fashion
+            self._update_weights(self.learningRate, derivatives)
 
     def classify(self, test_instance):
         # Classify an instance given the model of the classifier
         # You need to implement something here
-        pass
+        netOutput = self._feed_forward(test_instance)
+        return np.argmax(netOutput)
         
 
     def evaluate(self, test=None):
